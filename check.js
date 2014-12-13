@@ -11,22 +11,29 @@ var srv = http.createServer(function (req, res) {
     return onError();
 
   var c = net.createConnection(port.port, port.hostname, function () {
-    c.write("PING\r\n");
+    c.write("*1\r\n$4\r\nPING\r\n*1\r\n$4\r\nQUIT\r\n");
   });
 
-  c.on("data", function (data) {
+  var data = "";
+
+  c.on("data", function (d) {
+    data += d.toString();
+  });
+
+  c.on("close", function () {
     if (/PONG/.test(data.toString())) {
       c.destroy();
 
       handled = true;
       res.writeHead(200, {'Content-Type': 'text/plain'});
       res.end("PONG");
+    } else {
+      onError();
     }
-  });
+  })
 
   c.setTimeout(2000, onError);
   c.on("error", onError);
-  c.on("close", onError);
 
   function onError() {
     if (handled) return;
