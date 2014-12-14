@@ -5,6 +5,11 @@ var url = require("url");
 var port = url.parse(process.env["REDIS_PORT"] || "");
 
 var srv = http.createServer(function (req, res) {
+  if (req.url != '/ok') {
+    res.statusCode = 404;
+    return res.end();
+  }
+
   var handled = false;
 
   if (!port.hostname || !port.port)
@@ -26,7 +31,7 @@ var srv = http.createServer(function (req, res) {
 
       handled = true;
       res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.end("PONG");
+      res.end("OK");
     } else {
       onError();
     }
